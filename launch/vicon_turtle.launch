@@ -1,0 +1,6 @@
+<launch>
+	<node name="turtlesim_node" pkg="turtlesim" type="turtlesim_node" />
+	<node name="vicon_get" pkg="vicon_nodes" type="vicon_get" output="screen" />
+</launch>
+
+
