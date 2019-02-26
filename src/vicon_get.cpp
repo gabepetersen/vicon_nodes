@@ -21,16 +21,16 @@ class ViconTurtle {
 		ros::NodeHandle nh;
 		ros::Subscriber tfs;
 		ros::Publisher tpsh;
+		geometry_msgs::TransformStamped old_msg;
 };
 
 int main(int argc, char** argv) {
-
   	ros::init(argc, argv, "vicon_get");
 
 	// instantiate object - call def constructor
 	ViconTurtle VTurtle;  	
-	
-  	ros::spin();
+		
+	ros::spin();
   	return 0;
 };
 
@@ -38,25 +38,42 @@ void ViconTurtle::tfs_cb(const geometry_msgs::TransformStamped::ConstPtr& msg) {
 	// get the message
 	geometry_msgs::TransformStamped tfs_data = *msg;
 	// print out data for error checking
-	ROS_INFO("Translation Values: <%f, %f, %f>", tfs_data.transform.translation.x, 
-																tfs_data.transform.translation.y, 	
-																tfs_data.transform.translation.z);
-   ROS_INFO("Quaternion Values = <x,y,z,w> = <%f, %f, %f, %f>", tfs_data.transform.rotation.x,
-																					 tfs_data.transform.rotation.x, 
-																					 tfs_data.transform.rotation.x,
-	  																				 tfs_data.transform.rotation.x );
 	
 	geometry_msgs::Twist newPlace;
-	// Translation Vector - Varies Velocity and Placement in Space
-	newPlace.linear = tfs_data.transform.translation;
+	// Translation Vector - Varies Velocity and Placement in Space - get change
+	
+	/*
+	if(tfs_data.transform.translation.x != old_msg.transform.translation.x) {
+		newPlace.linear.x = tfs_data.transform.translation.x - old_msg.transform.translation.x;
+	}
+	if(tfs_data.transform.translation.y != old_msg.transform.translation.y) {
+		newPlace.linear.y = tfs_data.transform.translation.y - old_msg.transform.translation.y;
+	}
+	*/	
+
 	// Measure twist around only z-axis since car will operate on xy plane
-	float qw = tfs_data.transform.rotation.w;
-	float qz = tfs_data.transform.rotation.z;
+	float qz;
+	float qw = (tfs_data.transform.rotation.w - old_msg.transform.rotation.w);
+	if(tfs_data.transform.rotation.z > 0) {
+		qz = (tfs_data.transform.rotation.z - old_msg.transform.rotation.z);
+	} else {
+		qz = (old_msg.transform.rotation.z - tfs_data.transform.rotation.z);
+	}
+
+	// qauternion stuff 
+	if(qz < 0.008 && qz > -0.008) {
+		qw = 1.0;	
+	}
+	
 	// Get angle (radians) from quarternion and print it for error checking (if NaN)
    float z_angle = 2 * acos(qw);
-	ROS_INFO("Angle on z-axis is: %f", z_angle);
 	
 	// set z-angle and publish geometry_msg
 	newPlace.angular.z = z_angle;
+	newPlace.angular.y = 0;
+	newPlace.angular.x = 0;
+
+	// Redo old msg
+	old_msg = tfs_data;
 	tpsh.publish(newPlace);
 }
