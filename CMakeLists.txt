@@ -8,11 +8,14 @@ project(vicon_nodes)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  message_generation
-  message_runtime
-  roscpp
-  std_msgs
+	geometry_msgs
+	turtlesim
+  	tf2
+	tf2_geometry_msgs
+  	message_generation
+  	message_runtime
+  	roscpp
+  	std_msgs
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -106,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES vicon_nodes
-   CATKIN_DEPENDS geometry_msgs message_generation message_runtime roscpp std_msgs
+   CATKIN_DEPENDS turtlesim tf2 tf2_geometry_msgs geometry_msgs message_generation message_runtime roscpp std_msgs
 #  DEPENDS system_lib
 )
 
@@ -136,6 +139,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/vicon_nodes_node.cpp)
 add_executable(vicon_get src/vicon_get.cpp)
+add_executable(vicon_get_v2 src/vicon_get_v2.cpp)
+add_executable(vicon_get_v3 src/vicon_get_v3.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,12 +152,16 @@ add_executable(vicon_get src/vicon_get.cpp)
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(vicon_get ${catkin_EXPORTED_TARGETS})
+add_dependencies(vicon_get_v2 ${catkin_EXPORTED_TARGETS})
+add_dependencies(vicon_get_v3 ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(vicon_get ${catkin_LIBRARIES})
+target_link_libraries(vicon_get_v2 ${catkin_LIBRARIES})
+target_link_libraries(vicon_get_v3 ${catkin_LIBRARIES})
 
 #############
 ## Install ##
