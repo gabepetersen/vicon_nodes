@@ -74,8 +74,8 @@ int main(int argc, char **argv) {
 			ROS_INFO("Position Difference: %f, Angle Difference: %f\n", ErrorLin, ErrorAng);
 
 			// publish new velocity based on the given linear/angular velocities
-			CmdVel.linear.x = 0.5 * ErrorLin;
-			CmdVel.angular.z = 0.2 * ErrorAng;	
+			CmdVel.linear.x = ErrorLin;
+			CmdVel.angular.z = ErrorAng;	
 			turtleCmd.Twist_pub.publish(CmdVel);		
 		
 		} else {
@@ -128,11 +128,11 @@ float ViconTurtle::difAngleVel() {
 	float Ey = DesPose.y - CurPose.y;			
 	
 	// get desire angle
-	float dest = atan2f(Ey, Ex); 		
+	// float dest = atan2f(Ey, Ex); 		
 	
 	// get angle error
-	float Et = dest - CurPose.theta;  // BUG with angle switching back and forth
-	// float Et = DesPose.theta - CurPose.theta;
+	// float Et = dest - CurPose.theta;  // BUG with angle switching back and forth
+	float Et = DesPose.theta - CurPose.theta;
 	
 	return Et;
 }
@@ -142,7 +142,8 @@ float ViconTurtle::difLinearVel() {
 	// create error vector
 	float Ex = (DesPose.x - CurPose.x);	
 	float Ey = (DesPose.y - CurPose.y);
-	float Et = difAngleVel();							// get angle between vectors
+	// get angle between vectors
+	float Et = atan2f(Ey, Ex) - CurPose.theta; // difAngleVel(); 
 	
 	// project error onto turtle x axis
 	// float Etx =  pow( pow(Ex,2.0) + pow(Ey,2.0), 0.5 )*cos(Et);
